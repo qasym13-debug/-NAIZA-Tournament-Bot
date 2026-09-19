@@ -199,8 +199,8 @@ async def add(update, context):
         await update.message.reply_text("Қолдану: /add nz•Zevrix")
         return
         if name in player_names(t["id"]):
-        await update.message.reply_text(f"⚠️ <b>{name}</b> есімді ойыншы турнирде бар!", parse_mode="HTML")
-        return
+          await update.message.reply_text(f"⚠️ <b>{name}</b> есімді ойыншы турнирде бар!", parse_mode="HTML")
+          return
     count = len(player_names(t["id"]))
     if count >= t["size"]:
         await update.message.reply_text("❌ Ойыншы лимиті толды.")
