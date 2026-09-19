@@ -246,7 +246,7 @@ async def bracket(update, context):
     await update.message.reply_text(bracket_text(t["id"]), parse_mode="HTML")
 
 async def result(update, context):
-    if not await need_admin(update): return
+    #if not await need_admin(update): return
     t = active()
     if not t or t["status"] != "active":
         await update.message.reply_text("⚠️ Белсенді матчтар жоқ.")
