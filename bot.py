@@ -167,10 +167,9 @@ async def my_id(update, context):
     await update.message.reply_text(f"🆔 Сіздің Telegram ID: <code>{update.effective_user.id}</code>", parse_mode="HTML")
 
 async def new(update, context):
-    if not await need_admin(update): return
-    if active():
-        await update.message.reply_text("⚠️ Алдымен қазіргі турнирді /cancel арқылы жабыңыз.")
-        return
+    if not await need_admin(update): db("UPDATE tournament SET status='finished' WHERE status='active'")
+db("UPDATE tournament SET status='finished' WHERE status='active'")
+
     if not context.args or context.args[0] not in {"4","8","16","32"}:
         await update.message.reply_text("Қолдану: /new 16")
         return
