@@ -167,23 +167,26 @@ async def my_id(update, context):
     await update.message.reply_text(f"🆔 Сіздің Telegram ID: <code>{update.effective_user.id}</code>", parse_mode="HTML")
 
 async def new(update, context):
-    if not await need_admin(update): return
+    if not await need_admin(update):
+        return
     db("UPDATE tournament SET status='finished' WHERE status='active'")
-    if not context.args or context.args[0] not in {"4","8","16","32"}:
+    if not context.args or context.args[0] not in {"4", "8", "16", "32"}:
         await update.message.reply_text("Қолдану: /new 16")
         return
+
     size = int(context.args[0])
     name = "NAIZA League"
     if len(context.args) > 1:
         name = " ".join(context.args[1:])
-    tid = db("INSERT INTO tournament(name,size,status) VALUES(?,?,?)", (name,size,"registration"))
+    tid = db("INSERT INTO tournament (name, size) VALUES (?, ?)", (name, size))
     await update.message.reply_text(
         f"🏆 <b>{name}</b> ашылды!\n"
         f"👥 Қатысушы саны: {size}\n\n"
-        f"Ойыншыларды қосу: <code>/add Ойыншы</code>\n"
+        f"Ойыншыларды қосу: <code>/add Ойыншы1, Ойыншы2</code>\n"
         f"Барлығы жиналған соң: <code>/draw</code>",
         parse_mode="HTML"
     )
+
 
 async def add(update, context):
     #if not await need_admin(update): return
