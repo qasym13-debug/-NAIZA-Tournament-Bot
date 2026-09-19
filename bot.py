@@ -323,8 +323,19 @@ def main():
     app.add_handler(CommandHandler("result", result))
     app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("cancel", cancel))
-    print("NAIZA Tournament Bot is running...")
-    app.run_polling()
+    print("NAIZA Tournament Bot is running on Render webhook...")
+    external_url = os.environ.get("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
+    if not external_url:
+        raise RuntimeError("RENDER_EXTERNAL_URL is missing. This bot must run as a Render Web Service.")
+
+    port = int(os.environ.get("PORT", "10000"))
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path="webhook",
+        webhook_url=f"{external_url}/webhook",
+        drop_pending_updates=True,
+    )
 
 if __name__ == "__main__":
     main()
