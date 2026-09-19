@@ -188,7 +188,7 @@ async def new(update, context):
     )
 
 async def add(update, context):
-    if not await need_admin(update): return
+    #if not await need_admin(update): return
     t = active()
     if not t or t["status"] != "registration":
         await update.message.reply_text("⚠️ Қазір ойыншы қабылдайтын турнир жоқ.")
