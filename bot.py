@@ -204,15 +204,13 @@ async def add(update, context):
     count = len(player_names(t["id"]))
     if count >= t["size"]:
         await update.message.reply_text(Ойыншы лимиті толды)
-        return
     try:
-        db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"],name))
-    except sqlite3.IntegrityError:
-        await update.effective_message.reply_text⁠(Бұл ойыншы бұрын қосылған)
-        return
-    count += 1
-    await update.effective_message.reply_text⁠(f"✅ {name}\n👥 {count}/{t['size']}")
-
+            db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"], name))
+        except sqlite3.IntegrityError:
+            await update.effective_message.reply_text("Bul oiynshy buryn qosylgan.")
+            return
+        count += 1
+        await update.effective_message.reply_text(f"OK: {name} ({count}/{t['size']})")
 async def players(update, context):
     t = active()
     if not t:
