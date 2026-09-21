@@ -179,12 +179,12 @@ async def new(update, context):
     if len(context.args) > 1:
         name = " ".join(context.args[1:])
     tid = db("INSERT INTO tournament (name, size) VALUES (?, ?)", (name, size))
-            await update.effective_message.reply_text(
-            f"🏆 <b>{name}</b> ашылды!\n"
-            f"👥 Қатысушы саны: {size}\n\n"
-            f"Ойыншыларды қосу: <code>/add Ойыншы</code>\n"
-            f"Барлығы жиналған соң: <code>/draw</code>",
-            parse_mode="HTML"
+        await update.effective_message.reply_text(
+        f"🏆 <b>{name}</b> ашылды!\n"
+        f"👥 Қатысушы саны: {size}\n\n"
+        f"Ойыншыларды қосу: <code>/add Ойыншы</code>\n"
+        f"Барлығы жиналған соң: <code>/draw</code>",
+        parse_mode="HTML"
         )
         return
 
