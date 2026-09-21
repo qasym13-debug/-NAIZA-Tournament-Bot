@@ -185,8 +185,8 @@ async def new(update, context):
         f"Ойыншыларды қосу: <code>/add Ойыншы</code>\n"
         f"Барлығы жиналған соң: <code>/draw</code>",
         parse_mode="HTML"
-        )
-        return
+    )
+    return
 
 async def add(update, context):
     #if not await need_admin(update): return
