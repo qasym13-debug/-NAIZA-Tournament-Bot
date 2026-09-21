@@ -35,9 +35,6 @@ if not ADMIN_ID:
 
 conn = sqlite3.connect(DB_PATH, check_same_thread=False)
 conn.row_factory = sqlite3.Row
-(DB_PATH, check_same_thread=False)
-conn.row_factory = sqlite3.Row
-
 def db(sql, params=(), fetch=False, many=False):
     cur = conn.cursor()
     if many:
