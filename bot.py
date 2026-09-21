@@ -230,7 +230,7 @@ async def players(update, context):
     await update.effective_message.reply_text(text, parse_mode="HTML")
 
         
-
+async def draw(update, context):
     t = active()
     if not t:
         await update.message.reply_text("Қазір белсенді турнир жоқ.")
