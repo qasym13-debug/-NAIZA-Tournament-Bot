@@ -211,7 +211,7 @@ async def add(update, context):
         await update.message.reply_text("❌ Бұл ойыншы бұрын қосылған.")
         return
     count += 1
-    await update.message.reply_text(f"✅ {name}\n👥 {count}/{t['size']}")
+    await update.effective_message.reply_text⁠(f"✅ {name}\n👥 {count}/{t['size']}")
 
 async def players(update, context):
     t = active()
