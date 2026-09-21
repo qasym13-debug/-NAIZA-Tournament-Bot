@@ -198,20 +198,21 @@ async def add(update, context):
     if not name:
         await update.message.reply_text("Қолдану: /add nz•Zevrix")
         return
-        if name in player_names(t["id"]):
-          await update.message.reply_text(f"⚠️ <b>{name}</b> есімді ойыншы турнирде бар!", parse_mode="HTML")
-          return
-    count = len(player_names(t["id"]))
-    if count >= t["size"]:
-        await update.effective_message.reply_text("Oynshy limiti toldy.")
-    try:
+                if name in player_names(t["id"]):
+            await update.effective_message.reply_text("Bul oiynshy tizimde bar.")
+            return
+        count = len(player_names(t["id"]))
+        if count >= t["size"]:
+            await update.effective_message.reply_text("Oiynshy limiti toldy.")
+            return
+        try:
             db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"], name))
         except sqlite3.IntegrityError:
             await update.effective_message.reply_text("Bul oiynshy buryn qosylgan.")
             return
         count += 1
-        await update.effective_message.reply_text(f"OK: {name} ({count}/{t['size']})")
-async def players(update, context):
+        await update.effective_message.reply_text(f"Qosylshysy: {name} ({count}/{t['size']})")
+
     t = active()
     if not t:
         await update.message.reply_text("Қазір белсенді турнир жоқ.")
