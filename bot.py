@@ -1,4 +1,16 @@
+import threading
+from flask import Flask
 
+web_app = Flask('')
+
+@web_app.route('/')
+def home():
+    return "Bot is alive!"
+
+def keep_alive():
+    t = threading.Thread(target=lambda: web_app.run(host='0.0.0.0', port=8080))
+    t.daemon = True
+    t.start()
 import os
 import re
 import random
