@@ -341,7 +341,6 @@ async def cancel(update, context):
     await update.message.reply_text("🛑 Турнир жабылды.")
 
 def main():
-    keep_alive()
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", start))
