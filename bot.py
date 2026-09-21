@@ -1,35 +1,41 @@
+   import os
+import re
+import random
+import sqlite3
 import threading
+from typing import Optional
 from flask import Flask
 
-web_app = Flask('')
+from telegram import Update
+from telegram.ext import Application, CommandHandler
+
+web_app = Flask(__name__)
 
 @web_app.route('/')
 def home():
     return "Bot is alive!"
 
 def keep_alive():
-    t = threading.Thread(target=lambda: web_app.run(host='0.0.0.0', port=8080))
+    port = int(os.environ.get("PORT", 8080))
+    t = threading.Thread(target=lambda: web_app.run(host='0.0.0.0', port=port))
     t.daemon = True
     t.start()
-import os
-import re
-import random
-import sqlite3
-from typing import Optional
 
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+# Flask веб-серверін фонда іске қосу
+keep_alive()
 
 TOKEN = os.environ.get("BOT_TOKEN", "").strip()
-ADMIN_ID = int(os.environ.get("ADMIN_ID", "0") or 0)
+ADMIN_ID = int(os.environ.get("ADMIN_ID", "0"))
 DB_PATH = os.environ.get("DB_PATH", "naiza.db")
 
 if not TOKEN:
-    raise RuntimeError("BOT_TOKEN environment variable is missing.")
+    raise RuntimeError("BOT_TOKEN environment variable is missing!")
 if not ADMIN_ID:
-    raise RuntimeError("ADMIN_ID environment variable is missing.")
+    raise RuntimeError("ADMIN_ID environment variable is missing!")
 
 conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+conn.row_factory = sqlite3.Row
+(DB_PATH, check_same_thread=False)
 conn.row_factory = sqlite3.Row
 
 def db(sql, params=(), fetch=False, many=False):
