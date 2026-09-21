@@ -179,39 +179,41 @@ async def new(update, context):
     if len(context.args) > 1:
         name = " ".join(context.args[1:])
     tid = db("INSERT INTO tournament (name, size) VALUES (?, ?)", (name, size))
-    await update.message.reply_text(
-        f"🏆 <b>{name}</b> ашылды!\n"
-        f"👥 Қатысушы саны: {size}\n\n"
-        f"Ойыншыларды қосу: <code>/add Ойыншы1, Ойыншы2</code>\n"
-        f"Барлығы жиналған соң: <code>/draw</code>",
-        parse_mode="HTML"
-    )
-
+            await update.effective_message.reply_text(
+            f"🏆 <b>{name}</b> ашылды!\n"
+            f"👥 Қатысушы саны: {size}\n\n"
+            f"Ойыншыларды қосу: <code>/add Ойыншы</code>\n"
+            f"Барлығы жиналған соң: <code>/draw</code>",
+            parse_mode="HTML"
+        )
+        return
 
 async def add(update, context):
     #if not await need_admin(update): return
     t = active()
     if not t or t["status"] != "registration":
-        await update.message.reply_text("⚠️ Қазір ойыншы қабылдайтын турнир жоқ.")
+        await update.effective_message.reply_text("Tirkeu zhabyq.")
         return
     name = " ".join(context.args).strip()
     if not name:
-        await update.message.reply_text("Қолдану: /add nz•Zevrix")
+        await update.effective_message.reply_text("Aty-joninizdi zhazynyz.")
         return
-        if name in player_names(t["id"]):
-            await update.effective_message.reply_text("Bul oiynshy tizimde bar.")
-            return
-        count = len(player_names(t["id"]))
-        if count >= t["size"]:
-            await update.effective_message.reply_text("Oiynshy limiti toldy.")
-            return
-        try:
-            db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"], name))
-        except sqlite3.IntegrityError:
-            await update.effective_message.reply_text("Bul oiynshy buryn qosylgan.")
-            return
-        count += 1
-        await update.effective_message.reply_text(f"Qosylshysy: {name} ({count}/{t['size']})")
+    if name in player_names(t["id"]):
+        await update.effective_message.reply_text("Bul oiynshy tizimde bar.")
+        return
+    count = len(player_names(t["id"]))
+    if count >= t["size"]:
+        await update.effective_message.reply_text("Oiynshy limiti toldy.")
+        return
+    try:
+        db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"], name))
+    except sqlite3.IntegrityError:
+        await update.effective_message.reply_text("Bul oiynshy buryn qosylgan.")
+        return
+    count += 1
+    await update.effective_message.reply_text(f"Qosylshysy: {name} ({count}/{t['size']})")
+
+        
 
     t = active()
     if not t:
