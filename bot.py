@@ -208,7 +208,7 @@ async def add(update, context):
     try:
         db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"],name))
     except sqlite3.IntegrityError:
-        await update.effective_message.reply_text ⁠("❌ Бұл ойыншы бұрын қосылған.")
+        await update.effective_message.reply_text⁠("❌ Бұл ойыншы бұрын қосылған.")
         return
     count += 1
     await update.effective_message.reply_text⁠(f"✅ {name}\n👥 {count}/{t['size']}")
