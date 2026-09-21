@@ -203,7 +203,7 @@ async def add(update, context):
           return
     count = len(player_names(t["id"]))
     if count >= t["size"]:
-        await update.message.reply_text(❌ Ойыншы лимиті толды.")
+        await update.message.reply_text(Ойыншы лимиті толды)
         return
     try:
         db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"],name))
