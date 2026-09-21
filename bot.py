@@ -202,8 +202,8 @@ async def add(update, context):
           await update.message.reply_text(f"⚠️ <b>{name}</b> есімді ойыншы турнирде бар!", parse_mode="HTML")
           return
     count = len(player_names(t["id"]))
-    if count >= t["size"]:
-        await update.message.reply_text(Ойыншы лимиті толды)
+    if count >= t["await update.effective_message.reply_text("Oynshy limiti toldy.")
+
     try:
             db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"], name))
         except sqlite3.IntegrityError:
