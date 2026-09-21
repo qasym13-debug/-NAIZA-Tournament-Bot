@@ -198,7 +198,7 @@ async def add(update, context):
     if not name:
         await update.message.reply_text("Қолдану: /add nz•Zevrix")
         return
-                if name in player_names(t["id"]):
+        if name in player_names(t["id"]):
             await update.effective_message.reply_text("Bul oiynshy tizimde bar.")
             return
         count = len(player_names(t["id"]))
