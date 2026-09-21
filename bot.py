@@ -212,6 +212,22 @@ async def add(update, context):
         return
     count += 1
     await update.effective_message.reply_text(f"Qosylshysy: {name} ({count}/{t['size']})")
+async def players(update, context):
+    t = active()
+    if not t:
+        await update.effective_message.reply_text("Белсенді турнир табылған жоқ.")
+        return
+
+    rows = db("SELECT name FROM players WHERE tournament_id = ?", (t["id"],))
+    if not rows:
+        await update.effective_message.reply_text("Турнирде әлі ойыншылар жоқ.")
+        return
+
+    text = "<b>Қатысушылар тізімі:</b>\n"
+    for i, r in enumerate(rows, 1):
+        text += f"{i}. {r['name']}\n"
+
+    await update.effective_message.reply_text(text, parse_mode="HTML")
 
         
 
