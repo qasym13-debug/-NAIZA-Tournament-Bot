@@ -158,20 +158,21 @@ def create_bracket(tid, size):
     maybe_auto_byes(tid)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
+        await update.message.reply_text(
         "🏆 <b>NAIZA Tournament Bot</b>\n\n"
         "/new 16 — жаңа турнир ашу\n"
         "/add Ойыншы — ойыншы қосу\n"
         "/players — ойыншылар\n"
         "/draw — жеребе және сетка\n"
         "/bracket — турнир сеткасы\n"
-        "@user1 3-2 @user2 — матч нәтижесі"
+        "@user1 3-2 @user2 — матч нәтижесі\n"
         "/status — турнир статусы\n"
         "/cancel — турнирді жабу\n"
         "/id — Telegram ID\n\n"
         "Тек админ турнирді басқара алады.",
         parse_mode="HTML"
     )
+
 
 async def my_id(update, context):
     await update.message.reply_text(f"🆔 Сіздің Telegram ID: <code>{update.effective_user.id}</code>", parse_mode="HTML")
