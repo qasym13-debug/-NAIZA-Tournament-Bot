@@ -164,7 +164,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/players — ойыншылар\n"
         "/draw — жеребе және сетка\n"
         "/bracket — турнир сеткасы\n"
-        "/result ID 2-1 — матч нәтижесі\n"
+        "@user1 3-2 @user2 — матч нәтижесі"
         "/status — турнир статусы\n"
         "/cancel — турнирді жабу\n"
         "/id — Telegram ID\n\n"
