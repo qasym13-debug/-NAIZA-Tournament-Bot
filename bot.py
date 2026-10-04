@@ -284,16 +284,16 @@ async def result(update, context):
     import re
     text = update.message.text.strip()
     
-    # /result басталса немесе тікелей юзерлер жазылса да ұстайтын әмбебап паттерн
     if text.startswith('/result'):
         text = text.replace('/result', '', 1).strip()
         
-    pattern = r'(@[\w_]+)\s+(\d+[:\-—]\d+)\s+(@[\w_]+)'
+    # Басындағы кез келген #1, #2 сияқты нөмірлерді елемеу үшін тазартқыш
+    text = re.sub(r'^#\d+\s*', '', text)
+        
+    pattern = r'(@[\w_]+)\s*(\d+\s*[-—:]\s*\d+)\s*(@[\w_]+)'
     match = re.search(pattern, text)
     
     if not match:
-        # Қате болса неге жұмыс істемей жатқанын көру үшін тимчелка төмендегідей жаздырып көрейік
-        # await update.message.reply_text("⚠️ Форматты танымады!")
         return
         
     t = active()
@@ -304,8 +304,8 @@ async def result(update, context):
     score = match.group(2)
     p2_raw = match.group(3).lstrip('@')
     
-    u1 = db("SELECT id FROM users WHERE username = ?", (p1_raw,))
-    u2 = db("SELECT id FROM users WHERE username = ?", (p2_raw,))
+    u1 = db("SELECT id FROM users WHERE LOWER(username) = LOWER(?)", (p1_raw,))
+    u2 = db("SELECT id FROM users WHERE LOWER(username) = LOWER(?)", (p2_raw,))
     
     if not u1 or not u2:
         await update.message.reply_text(f"⚠️ Ойыншылар базадан табылмады: @{p1_raw} немесе @{p2_raw}")
@@ -317,7 +317,13 @@ async def result(update, context):
     )
     
     if not match_row:
-        await update.message.reply_text("⚠️ Бұл екі ойыншы арасында белсенді матч жоқ немесе бұрын аяқталған!")
+        match_row = db(
+            "SELECT * FROM matches WHERE tournament_id=? AND ((player1_id=? AND player2_id=?) OR (player1_id=? AND player2_id=?)) AND status='active'",
+            (t["id"], u1["id"], u2["id"], u2["id"], u1["id"])
+        )
+        
+    if not match_row:
+        await update.message.reply_text("⚠️ Бұл екі ойыншы арасында белсенді (active) матч жоқ!")
         return
 
     try:
