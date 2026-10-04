@@ -320,8 +320,10 @@ async def result(update, context):
     u2 = db("SELECT id FROM users WHERE username = ? OR username = ? OR LOWER(username) = LOWER(?) OR LOWER(username) = LOWER(?)", 
             (p2_raw, f"@{p2_raw}", p2_raw, f"@{p2_raw}"))
     
-    if not u1 or not u2:
-    return
+        if not u1 or not u2:
+        await update.message.reply_text(f"⚠️ Ойыншылар базадан табылмады! u1: {u1}, u2: {u2}")
+        return
+
 
         
     # Белсенді матчын табу
