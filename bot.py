@@ -277,26 +277,60 @@ async def bracket(update, context):
     await update.message.reply_text(bracket_text(t["id"]), parse_mode="HTML")
 
 async def result(update, context):
-    #if not await need_admin(update): return
-    t = active()
-    if not t or t["status"] != "active":
-        await update.message.reply_text("⚠️ Белсенді матчтар жоқ.")
+    if not update.message or not update.message.text:
         return
+        
     import re
     text = update.message.text.strip()
-    if text.startswith('/result'):
+    
+    is_explicit_command = text.startswith('/result')
+    if is_explicit_command:
         text = text.replace('/result', '', 1).strip()
 
-    pattern = r'(@[\w_]+)\s+(\d+[-:]\d+)\s+(@[\w_]+)'
+    # Бос орындарды еркін қабылдайтын үлгі
+    pattern = r'(@[\w_]+)\s*(\d+[-:]\d+)\s*(@[\w_]+)'
     match = re.search(pattern, text)
     
     if not match:
-        await update.message.reply_text("❌ Қате формат! Мысал: @qasymz 3-2 @nz_SAKEE")
+        if is_explicit_command:
+            await update.message.reply_text("❌ Қате формат! Мысал: @qasymz 3-2 @nz_SAKEE")
+        return  # Қарапайым сөздерге үндемейді
+
+    t = active()
+    if not t or t["status"] != "active":
+        if is_explicit_command:
+            await update.message.reply_text("⚠️ Белсенді турнир жоқ.")
         return
-        
-    player1 = match.group(1)
-    score_str = match.group(2)
-    player2 = match.group(3)
+
+    p1 = match.group(1)
+    score = match.group(2)
+    p2 = match.group(3)
+
+    # 1. Ойыншыларды базадан табамыз
+    u1 = db("SELECT id FROM users WHERE username=?", (p1.lstrip('@'),), one=True)
+    u2 = db("SELECT id FROM users WHERE username=?", (p2.lstrip('@'),), one=True)
+
+    if not u1 or not u2:
+        if is_explicit_command:
+            await update.message.reply_text("❌ Ойыншылар базадан табылмады.")
+        return
+
+    # 2. Осы екі ойыншының белсенді матчын іздеп тауып, ұпайды жазамыз
+    match_row = db(
+        "SELECT * FROM matches WHERE tournament_id=? AND ((player1_id=? AND player2_id=?) OR (player1_id=? AND player2_id=?)) AND status='active'",
+        (t["id"], u1["id"], u2["id"], u2["id"], u1["id"]), one=True
+    )
+
+    if not match_row:
+        if is_explicit_command:
+            await update.message.reply_text("⚠️ Бұл ойыншылар арасында белсенді матч жоқ.")
+        return
+
+    # 3. Ұпайды базаға сақтап, матчын жабамыз
+    db("UPDATE matches SET score=?, status='finished' WHERE id=?", (score, match_row["id"]))
+    
+    await update.message.reply_text(f"✅ Нәтиже қабылданды!\n🏆 {p1} {score} {p2}")
+
     
     try:
         score_str = score_str.replace(":", "-")
