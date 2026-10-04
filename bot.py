@@ -294,7 +294,7 @@ async def result(update, context):
     if not match:
         if is_explicit_command:
             await update.message.reply_text("❌ Қате формат! Мысал: @qasymz 3-2 @nz_SAKEE")
-        return  # Қарапайым сөздерге үндемейді
+        return
 
     t = active()
     if not t or t["status"] != "active":
@@ -302,24 +302,35 @@ async def result(update, context):
             await update.message.reply_text("⚠️ Белсенді турнир жоқ.")
         return
 
-    p1 = match.group(1)
+    p1_raw = match.group(1).lstrip('@')
     score = match.group(2)
-    p2 = match.group(3)
+    p2_raw = match.group(3).lstrip('@')
 
-    # 1. Ойыншыларды базадан табамыз
-    u1 = db("SELECT id FROM users WHERE username=?", (p1.lstrip('@'),), one=True)
-    u2 = db("SELECT id FROM users WHERE username=?", (p2.lstrip('@'),), one=True)
+    # 1. Ойыншыларды базадан іздеу (username немесе name арқылы)
+    u1 = db("SELECT id FROM users WHERE username=? OR name=?", (p1_raw, f"@{p1_raw}"), one=True)
+    u2 = db("SELECT id FROM users WHERE username=? OR name=?", (p2_raw, f"@{p2_raw}"), one=True)
 
     if not u1 or not u2:
+        # Егер әдейі команда арқылы жазса ғана қатені көрсетеміз
         if is_explicit_command:
-            await update.message.reply_text("❌ Ойыншылар базадан табылмады.")
+            await update.message.reply_text(f"❌ Ойыншылар базадан табылмады: @{p1_raw} немесе @{p2_raw}")
         return
 
-    # 2. Осы екі ойыншының белсенді матчын іздеп тауып, ұпайды жазамыз
+    # 2. Осы екі ойыншының белсенді матчын табамыз
     match_row = db(
         "SELECT * FROM matches WHERE tournament_id=? AND ((player1_id=? AND player2_id=?) OR (player1_id=? AND player2_id=?)) AND status='active'",
         (t["id"], u1["id"], u2["id"], u2["id"], u1["id"]), one=True
     )
+
+    if not match_row:
+        if is_explicit_command:
+            await update.message.reply_text("⚠️ Бұл ойыншылар арасында активті (белсенді) матч жоқ.")
+        return
+
+    # 3. Ұпайды жазып, матчын жабамыз
+    db("UPDATE matches SET score=?, status='finished' WHERE id=?", (score, match_row["id"]))
+    
+    await update.message.reply_text(f"✅ Нәтиже қабылданды!\n🏆 @{p1_raw} {score} @{p2_raw}")
 
     if not match_row:
         if is_explicit_command:
