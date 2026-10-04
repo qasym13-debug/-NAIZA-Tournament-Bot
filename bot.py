@@ -424,7 +424,12 @@ def main():
     app.add_handler(CommandHandler("bracket", bracket))
     app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("cancel", cancel))
-    app.add_handler(MessageHandler(filters.TEXT, result))
+    app.add_handler(
+    MessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        result
+    )
+)
     print("NAIZA Tournament Bot is running on Render webhook...")
     external_url = os.environ.get("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
     if not external_url:
