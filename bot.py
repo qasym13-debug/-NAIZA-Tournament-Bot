@@ -158,7 +158,7 @@ def create_bracket(tid, size):
     maybe_auto_byes(tid)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(
+    await update.message.reply_text(
         "🏆 <b>NAIZA Tournament Bot</b>\n\n"
         "/new 16 — жаңа турнир ашу\n"
         "/add Ойыншы — ойыншы қосу\n"
