@@ -327,30 +327,23 @@ async def result(update, context):
         if is_explicit_command:
             await update.message.reply_text("⚠️ Бұл ойыншылар арасында активті (белсенді) матч жоқ.")
         return
-
-    # 3. Ұпайды жазып, матчын жабамыз
-    db("UPDATE matches SET score=?, status='finished' WHERE id=?", (score, match_row["id"]))
-    
-    await update.message.reply_text(f"✅ Нәтиже қабылданды!\n🏆 @{p1_raw} {score} @{p2_raw}")
-
-    if not match_row:
-        if is_explicit_command:
-            await update.message.reply_text("⚠️ Бұл ойыншылар арасында белсенді матч жоқ.")
-        return
-
-    # 3. Ұпайды базаға сақтап, матчын жабамыз
-    db("UPDATE matches SET score=?, status='finished' WHERE id=?", (score, match_row["id"]))
-    
-    await update.message.reply_text(f"✅ Нәтиже қабылданды!\n🏆 {p1} {score} {p2}")
-
-    
+        # 3. Есепті өңдеу және сақтау
     try:
-        score_str = score_str.replace(":", "-")
-        a, b = map(int, score_str.split("-"))
+        clean_score = score.replace(":", "-")
+        a, b = map(int, clean_score.split("-"))
     except Exception:
-        await update.message.reply_text("❌ Есеп форматы қате! Мысал: @qasymz 3-2 @nz_SAKEE")
+        if is_explicit_command:
+            await update.message.reply_text("❌ Есеп форматы қате! Мысалы: @user1 3-0 @user2")
         return
 
+    winner_id = u1["id"] if a > b else (u2["id"] if b > a else None)
+
+    db(
+        "UPDATE matches SET score=?, winner_id=?, status='finished' WHERE id=?",
+        (f"{a}-{b}", winner_id, match_row["id"])
+    )
+
+    await update.message.reply_text(f"✅ Матч нәтижесі сақталды: @{p1_raw} {a}-{b} @{p2_raw}")
     if a == b:
         await update.message.reply_text("❌ Тең есеп қабылданбайды. Жеңімпаз анықталуы керек.")
         return
