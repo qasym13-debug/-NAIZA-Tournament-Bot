@@ -374,7 +374,7 @@ def main():
     app.add_handler(CommandHandler("players", players))
     app.add_handler(CommandHandler("draw", draw))
     app.add_handler(CommandHandler("bracket", bracket))
-    app.add_handler(MessageHandler(filters.Regex(r'@[\w_]+\s+\d+[-:]\d+\s+@[\w_]+'), result))
+    app.add_handler(MessageHandler(filters.regex(r'@[\w_]+\s+\d+[-:]\d+\s+@[\w_]+'), result))
     app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("cancel", cancel))
     print("NAIZA Tournament Bot is running on Render webhook...")
