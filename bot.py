@@ -280,90 +280,73 @@ async def bracket(update, context):
 async def result(update, context):
     if not update.message or not update.message.text:
         return
-        
+    
     import re
     text = update.message.text.strip()
     
     is_explicit_command = text.startswith('/result')
     if is_explicit_command:
         text = text.replace('/result', '', 1).strip()
-
-    # Бос орындарды еркін қабылдайтын үлгі
-    pattern = r'(@[\w_]+)\s*(\d+\s*[-–—:]\s*\d+)\s*(@[\w_]+)'
+        
+    pattern = r'(@[\w_]+)\s*(\d+\s*[-—:]\s*\d+)\s*(@[\w_]+)'
     match = re.search(pattern, text)
     
     if not match:
         if is_explicit_command:
-            await update.message.reply_text("❌ Қате формат! Мысал: @qasymz 3-2 @nz_SAKEE")
+            await update.message.reply_text("⚠️ Формат қате! Мысалы: @user1 3-0 @user2")
         return
-
+        
     t = active()
     if not t or t["status"] != "active":
         if is_explicit_command:
-            await update.message.reply_text("⚠️ Белсенді турнир жоқ.")
+            await update.message.reply_text("⚠️ Белсенді турнир жоқ!")
         return
-
+        
     p1_raw = match.group(1).lstrip('@')
     score = match.group(2)
     p2_raw = match.group(3).lstrip('@')
-
-    # 1. Ойыншыларды базадан іздеу (username немесе name арқылы)
-    u1 = db("SELECT id FROM users WHERE username=? OR name=?", (p1_raw, f"@{p1_raw}"), one=True)
-    u2 = db("SELECT id FROM users WHERE username=? OR name=?", (p2_raw, f"@{p2_raw}"), one=True)
-
+    
+    u1 = db("SELECT id FROM users WHERE username = ?", (p1_raw,))
+    u2 = db("SELECT id FROM users WHERE username = ?", (p2_raw,))
+    
     if not u1 or not u2:
-        # Егер әдейі команда арқылы жазса ғана қатені көрсетеміз
         if is_explicit_command:
-            await update.message.reply_text(f"❌ Ойыншылар базадан табылмады: @{p1_raw} немесе @{p2_raw}")
+            await update.message.reply_text(f"⚠️ Ойыншылар табылмады: @{p1_raw} немесе @{p2_raw}")
         return
-
-    # 2. Осы екі ойыншының белсенді матчын табамыз
+        
     match_row = db(
-        "SELECT * FROM matches WHERE tournament_id=? AND ((player1_id=? AND player2_id=?) OR (player1_id=? AND player2_id=?)) AND status='active'",
-        (t["id"], u1["id"], u2["id"], u2["id"], u1["id"]), one=True
+        "SELECT * FROM matches WHERE tournament_id=? AND ((player1=? AND player2=?) OR (player1=? AND player2=?)) AND status='active'",
+        (t["id"], u1["id"], u2["id"], u2["id"], u1["id"])
     )
-
+    
     if not match_row:
         if is_explicit_command:
-            await update.message.reply_text("⚠️ Бұл ойыншылар арасында активті (белсенді) матч жоқ.")
+            await update.message.reply_text("⚠️ Бұл екі ойыншы арасында белсенді матч жоқ!")
         return
-    # 3. Есепті өңдеу (мәтіннен сандарды шығарып алу)
+
     try:
-        clean_score = score.replace(":", "-")
+        clean_score = score.replace(":", "-").replace("—", "-")
         a, b = map(int, clean_score.split("-"))
     except Exception:
         if is_explicit_command:
-            await update.message.reply_text("❌ Есеп форматы қате! Мысалы: @user1 3-0 @user2")
+            await update.message.reply_text("❌ Есеп форматы қате!")
         return
 
-    # Тең есепті тексеру
     if a == b:
         if is_explicit_command:
             await update.message.reply_text("❌ Тең есепке рұқсат етілмейді!")
         return
 
-    # Базадан нақты матчты қайта тексеріп алу
-    rows = db(
-        "SELECT * FROM matches WHERE tournament_id=? AND ((player1=? AND player2=?) OR (player1=? AND player2=?)) AND status='active'",
-        (t["id"], u1["id"], u2["id"], u2["id"], u1["id"])
-    )
-    
+    rows = db("SELECT * FROM matches WHERE id=?", (match_row["id"],))
     if not rows:
-        # Егер жоғарыдағы шартпен таппаса, match_row арқылы көреміз
-        if not match_row:
-            if is_explicit_command:
-                await update.message.reply_text("⚠️ Белсенді матч табылмады!")
-            return
         rows = [match_row]
-
+        
     m = rows[0]
-    
     if m.get("winner"):
         if is_explicit_command:
-            await update.message.reply_text("⚠ Бұл матч үшін нәтиже бұрын енгізілген!")
+            await update.message.reply_text("⚠️ Бұл матч үшін нәтиже бұрын енгізіліп қойған!")
         return
 
-    # Жеңімпазды анықтау және базаны жаңарту
     winner_id = u1["id"] if a > b else u2["id"]
     
     db(
@@ -375,8 +358,11 @@ async def result(update, context):
         propagate_winner(t["id"], m["round_no"], m["match_no"], winner_id)
     except Exception:
         pass
-    
 
+    await update.message.reply_text(
+        f"✅ Матч нәтижесі сақталды:\n@{p1_raw} {a}:{b} @{p2_raw}"
+    )
+    
     # Finish if this was the final.
     final_rows = db("""SELECT * FROM matches WHERE tournament_id=? ORDER BY round_no DESC LIMIT 1""", (t["id"],), fetch=True)
     if final_rows and final_rows[0]["id"] == mid:
