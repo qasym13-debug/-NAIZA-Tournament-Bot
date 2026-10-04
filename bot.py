@@ -281,15 +281,38 @@ async def result(update, context):
     if not t or t["status"] != "active":
         await update.message.reply_text("⚠️ Белсенді матчтар жоқ.")
         return
-    if len(context.args) != 2:
-        await update.message.reply_text("Қолдану: /result 3 2-1")
+    import re
+    text = update.message.text.strip()
+    if text.startswith('/result'):
+        text = text.replace('/result', '', 1).strip()
+
+    pattern = r'(@[\w_]+)\s+(\d+[-:]\d+)\s+(@[\w_]+)'
+    match = re.search(pattern, text)
+    
+    if not match:
+        await update.message.reply_text("❌ Қате формат! Мысал: @qasymz 3-2 @nz_SAKEE")
         return
+        
+    player1 = match.group(1)
+    score_str = match.group(2)
+    player2 = match.group(3)
+    
     try:
-        mid = int(context.args[0])
-        a, b = map(int, context.args[1].split("-"))
+        score_str = score_str.replace(":", "-")
+        a, b = map(int, score_str.split("-"))
     except Exception:
-        await update.message.reply_text("❌ Формат: /result 3 2-1")
+        await update.message.reply_text("❌ Есеп форматы қате! Мысал: @qasymz 3-2 @nz_SAKEE")
         return
+
+    if a == b:
+        await update.message.reply_text("❌ Тең есеп қабылданбайды. Жеңімпаз анықталуы керек.")
+        return
+
+    rows = db(
+        "SELECT * FROM matches WHERE tournament_id=? AND ((p1=? AND p2=?) OR (p1=? AND p2=?))",
+        (t["id"], player1, player2, player2, player1)
+    )
+
     if a == b:
         await update.message.reply_text("❌ Тең есеп қабылданбайды. Жеңімпаз анықталған есеп енгізіңіз.")
         return
