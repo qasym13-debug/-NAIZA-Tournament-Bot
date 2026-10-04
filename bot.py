@@ -289,7 +289,7 @@ async def result(update, context):
         text = text.replace('/result', '', 1).strip()
 
     # Бос орындарды еркін қабылдайтын үлгі
-    pattern = r'(@[\w_]+)\s*(\d+[-:]\d+)\s*(@[\w_]+)'
+    pattern = r'(@[\w_]+)\s*(\d+\s*[-–—:]\s*\d+)\s*(@[\w_]+)'
     match = re.search(pattern, text)
     
     if not match:
