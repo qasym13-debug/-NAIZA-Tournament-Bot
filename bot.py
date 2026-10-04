@@ -374,7 +374,8 @@ def main():
     app.add_handler(CommandHandler("players", players))
     app.add_handler(CommandHandler("draw", draw))
     app.add_handler(CommandHandler("bracket", bracket))
-    app.add_handler(MessageHandler(filters.Regex(r'@[\w_]+\s+\d+[-:]\d+\s+@[\w_]+'), result))
+    app.add_handler(MessageHandler(filters.TEXT, result))
+
 
     app.add_handler(CommandHandler("status", status))
     app.add_handler(CommandHandler("cancel", cancel))
