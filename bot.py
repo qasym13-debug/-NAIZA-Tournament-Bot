@@ -5,7 +5,7 @@ import sqlite3
 from typing import Optional
 
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 
 TOKEN = os.environ.get("BOT_TOKEN", "").strip()
