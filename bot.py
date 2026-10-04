@@ -278,112 +278,121 @@ async def bracket(update, context):
     await update.message.reply_text(bracket_text(t["id"]), parse_mode="HTML")
 
 async def result(update, context):
-    if not update.message:
+    if not await need_admin(update):
         return
-    
-    # Хабарламаның мәтінін немесе реплай жасалған хабарламаны біріктіріп алу
-    text = ""
-    if update.message.text:
-        text = update.message.text.strip()
-    elif update.message.caption:
-        text = update.message.caption.strip()
-        
-    # Егер реплай жасалса, үстіңгі хабарламаны да қосамыз
-    if update.message.reply_to_message:
-        if update.message.reply_to_message.text:
-            text += " " + update.message.reply_to_message.text
-        elif update.message.reply_to_message.caption:
-            text += " " + update.message.reply_to_message.caption
-            
-    if not text:
-        return
-        
-    import re
-    # @user 3:1 @user немесе 3-1 форматын кез келген жерден табу
-    pattern = r'(@[\w_]+)\s*(\d+\s*[:\-—]\s*\d+)\s*(@[\w_]+)'
-    match = re.search(pattern, text)
-    
-    if not match:
-        return
-        
-    p1_raw = match.group(1).lstrip('@')
-    score_raw = match.group(2)
-    p2_raw = match.group(3).lstrip('@')
-    
+
     t = active()
     if not t or t["status"] != "active":
-        return
-        
-    # Базадан ойыншыларды іздеу (юзернейм @ таңбасымен немесе таңбасыз сақталғанына қарамастан)
-    u1 = db("SELECT id FROM users WHERE username = ? OR username = ? OR LOWER(username) = LOWER(?) OR LOWER(username) = LOWER(?)", 
-            (p1_raw, f"@{p1_raw}", p1_raw, f"@{p1_raw}"))
-    u2 = db("SELECT id FROM users WHERE username = ? OR username = ? OR LOWER(username) = LOWER(?) OR LOWER(username) = LOWER(?)", 
-            (p2_raw, f"@{p2_raw}", p2_raw, f"@{p2_raw}"))
-    
-    if not u1 or not u2:
-        await update.message.reply_text(f"⚠️ Ойыншылар базадан табылмады! u1: {u1}, u2: {u2}")
+        await update.message.reply_text("⚠️ Белсенді турнир жоқ.")
         return
 
+    text = update.message.text.strip()
 
-        
-    # Белсенді матчын табу
-    match_row = db(
-        "SELECT * FROM matches WHERE tournament_id=? AND ((player1=? AND player2=?) OR (player1=? AND player2=?)) AND status='active'",
-        (t["id"], u1["id"], u2["id"], u2["id"], u1["id"])
+    # Формат: @player1 3-0 @player2
+    match = re.fullmatch(
+        r"(@[\w]+)\s+(\d+)\s*-\s*(\d+)\s+(@[\w]+)",
+        text
     )
-    
-    if not match_row:
-        match_row = db(
-            "SELECT * FROM matches WHERE tournament_id=? AND ((player1_id=? AND player2_id=?) OR (player1_id=? AND player2_id=?)) AND status='active'",
-            (t["id"], u1["id"], u2["id"], u2["id"], u1["id"])
-        )
-        
-    if not match_row:
+
+    if not match:
         return
 
-    try:
-        clean_score = score_raw.replace(":", "-").replace("—", "-").replace(" ", "")
-        a, b = map(int, clean_score.split("-"))
-    except Exception:
-        return
+    p1_input = match.group(1)
+    a = int(match.group(2))
+    b = int(match.group(3))
+    p2_input = match.group(4)
 
     if a == b:
-        await update.message.reply_text("❌ Тең есепке рұқсат етілмейді!")
+        await update.message.reply_text(
+            "❌ Тең есеп қабылданбайды."
+        )
         return
 
-    winner_id = u1["id"] if a > b else u2["id"]
-    
-    # Нәтижені базаға жазу
-    db(
-        "UPDATE matches SET s1=?, s2=?, winner=?, status='finished' WHERE id=?",
-        (a, b, winner_id, match_row["id"])
+    def clean(name):
+        return name.strip().lower()
+
+    p1_input = clean(p1_input)
+    p2_input = clean(p2_input)
+
+    # Матчтарды тексеру
+    rows = db(
+        """SELECT * FROM matches
+           WHERE tournament_id=?
+           AND winner IS NULL
+           AND p1 IS NOT NULL
+           AND p2 IS NOT NULL""",
+        (t["id"],),
+        fetch=True
     )
-    
-    try:
-        propagate_winner(t["id"], match_row["round_no"], match_row["match_no"], winner_id)
-    except Exception:
-        pass
 
-    # Дәл суреттегідей етіп жауап беру
-    await update.message.reply_text(
-        f"✅ Результат матча сохранён:\n@{p1_raw} {a}:{b} @{p2_raw}"
-    )
+    found = None
 
+    for m in rows:
+        mp1 = clean(m["p1"])
+        mp2 = clean(m["p2"])
 
-    
-    # Finish if this was the final.
-    final_rows = db("""SELECT * FROM matches WHERE tournament_id=? ORDER BY round_no DESC LIMIT 1""", (t["id"],), fetch=True)
-    if final_rows and final_rows[0]["id"] == mid:
-        db("UPDATE tournament SET status='finished' WHERE id=?", (t["id"],))
+        if (
+            (p1_input == mp1 and p2_input == mp2) or
+            (p1_input == mp2 and p2_input == mp1)
+        ):
+            found = m
+            break
+
+    if not found:
         await update.message.reply_text(
-            f"🏆🏆🏆 <b>NAIZA CHAMPION!</b>\n\n👑 {winner}\n\n"
-            + bracket_text(t["id"]), parse_mode="HTML"
+            "❌ Бұл ойыншылар арасында белсенді матч табылмады."
+        )
+        return
+
+    m = found
+
+    # Сеттегі нақты ойыншыға қарай счетты орналастыру
+    if p1_input == clean(m["p1"]):
+        s1, s2 = a, b
+    else:
+        s1, s2 = b, a
+
+    winner = m["p1"] if s1 > s2 else m["p2"]
+
+    db(
+        "UPDATE matches SET s1=?, s2=?, winner=? WHERE id=?",
+        (s1, s2, winner, m["id"])
+    )
+
+    propagate_winner(
+        t["id"],
+        m["round_no"],
+        m["position"],
+        winner
+    )
+
+    # Финал
+    final_rows = db(
+        """SELECT * FROM matches
+           WHERE tournament_id=?
+           ORDER BY round_no DESC LIMIT 1""",
+        (t["id"],),
+        fetch=True
+    )
+
+    if final_rows and final_rows[0]["id"] == m["id"]:
+        db(
+            "UPDATE tournament SET status='finished' WHERE id=?",
+            (t["id"],)
+        )
+
+        await update.message.reply_text(
+            f"🏆🏆🏆 NAIZA CHAMPION!\n\n"
+            f"👑 {winner}\n\n"
+            + bracket_text(t["id"])
         )
         return
 
     await update.message.reply_text(
-        f"✅ Нәтиже қабылданды!\n🏅 Жеңімпаз: {winner}\n\n" + bracket_text(t["id"]),
-        parse_mode="HTML"
+        f"✅ Нәтиже қабылданды!\n"
+        f"⚽ {m['p1']} {s1}:{s2} {m['p2']}\n"
+        f"🏅 Жеңімпаз: {winner}\n\n"
+        + bracket_text(t["id"])
     )
 
 async def status(update, context):
