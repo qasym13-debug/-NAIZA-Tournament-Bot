@@ -426,7 +426,7 @@ def main():
     app.add_handler(CommandHandler("cancel", cancel))
     app.add_handler(
     MessageHandler(
-        filters.TEXT & ~filters.COMMAND,
+        filters.Regex(r"^@\w+\s+\d+\s*-\s*\d+\s+@\w+$"),
         result
     )
 )
