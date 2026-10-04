@@ -321,7 +321,8 @@ async def result(update, context):
             (p2_raw, f"@{p2_raw}", p2_raw, f"@{p2_raw}"))
     
     if not u1 or not u2:
-        return
+    return
+
         
     # Белсенді матчын табу
     match_row = db(
