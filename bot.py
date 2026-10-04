@@ -284,11 +284,19 @@ async def result(update, context):
     import re
     text = update.message.text.strip()
     
-    # Егер алдында /result болса, алып тастаймыз
+    # Егер біреу көмек немесе формасын сұраса
+    if text.lower() == '/result':
+        await update.message.reply_text(
+            "ℹ️ Матч нәтижесін тіркеу үшін мына үлгіде жазыңыз:\n"
+            "<code>@user1 3-0 @user2</code>",
+            parse_mode="HTML"
+        )
+        return
+
     if text.startswith('/result'):
         text = text.replace('/result', '', 1).strip()
         
-    # Форматты іздеу: @user1 3-0 @user2 (арасындағы бос орындар мен сызықтарға мән бермеу)
+    # Форматты іздеу: @user1 3-0 @user2
     pattern = r'(@[\w_]+)\s*(\d+\s*[-—:]\s*\d+)\s*(@[\w_]+)'
     match = re.search(pattern, text)
     
@@ -303,15 +311,13 @@ async def result(update, context):
     if not t or t["status"] != "active":
         return
         
-    # Ойыншыларды базадан табу
     u1 = db("SELECT id FROM users WHERE LOWER(username) = LOWER(?)", (p1_raw,))
     u2 = db("SELECT id FROM users WHERE LOWER(username) = LOWER(?)", (p2_raw,))
     
     if not u1 or not u2:
-        await update.message.reply_text(f"⚠️️ Ойыншылар табылмады: @{p1_raw} немесе @{p2_raw}")
+        await update.message.reply_text(f"⚠️ Ойыншылар базадан табылмады: @{p1_raw} немесе @{p2_raw}")
         return
         
-    # Белсенді матчын іздеу
     match_row = db(
         "SELECT * FROM matches WHERE tournament_id=? AND ((player1=? AND player2=?) OR (player1=? AND player2=?)) AND status='active'",
         (t["id"], u1["id"], u2["id"], u2["id"], u1["id"])
@@ -339,7 +345,6 @@ async def result(update, context):
 
     winner_id = u1["id"] if a > b else u2["id"]
     
-    # Дерекқорды жаңарту
     db(
         "UPDATE matches SET s1=?, s2=?, winner=?, status='finished' WHERE id=?",
         (a, b, winner_id, match_row["id"])
@@ -351,6 +356,7 @@ async def result(update, context):
         pass
 
     await update.message.reply_text(f"✅ Матч нәтижесі сақталды:\n@{p1_raw} {a}:{b} @{p2_raw}")
+
 
     
     # Finish if this was the final.
