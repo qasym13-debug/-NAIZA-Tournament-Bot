@@ -207,8 +207,14 @@ async def add(update, context):
         f"DEBUG: id={t['id'] if t else None}, "
         f"status={t['status'] if t else None}"
     )
-    if not t or t["status"] != "registration":
-        await update.effective_message.reply_text("Tirkeu zhabyq.")
+    if not t:
+    await update.effective_message.reply_text("❌ Турнир табылмады.")
+    return
+
+    if t["status"] != "registration":
+        await update.effective_message.reply_text(
+            f"❌ Тіркеу жабық. Status: {t['status']}"
+        )
         return
     name = " ".join(context.args).strip()
     if not name:
