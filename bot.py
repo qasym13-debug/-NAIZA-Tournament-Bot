@@ -437,12 +437,13 @@ def main():
 
     port = int(os.environ.get("PORT", "10000"))
     app.run_webhook(
-        listen="0.0.0.0",
-        port=port,
-        url_path="",
-        webhook_url=f"{external_url}/",
-        drop_pending_updates=True
-    )
+    listen="0.0.0.0",
+    port=port,
+    url_path="",
+    webhook_url=f"{external_url}/",
+    drop_pending_updates=True,
+    allowed_updates=["message"]
+)
 
 if __name__ == "__main__":
     main()
