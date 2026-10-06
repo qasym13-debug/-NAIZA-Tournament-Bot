@@ -240,20 +240,6 @@ async def players(update, context):
         text += f"{i}. {r['name']}\n"
 
     await update.effective_message.reply_text(text, parse_mode="HTML")
-
-        
-async def draw(update, context):
-    t = active()
-    if not t:
-        await update.message.reply_text("Қазір белсенді турнир жоқ.")
-        return
-    ps = player_names(t["id"])
-    if len(ps) < 2:
-        await update.message.reply_text("Ойыншылар әлі жоқ.")
-        return
-    text = "\n".join(f"{i+1}. {p}" for i,p in enumerate(ps))
-    await update.message.reply_text(f"👥 <b>Ойыншылар {len(ps)}/{t['size']}</b>\n\n{text}", parse_mode="HTML")
-
 async def draw(update, context):
     if not await need_admin(update): return
     t = active()
