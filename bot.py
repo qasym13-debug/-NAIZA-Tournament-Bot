@@ -447,7 +447,7 @@ async def result(update, context):
         fetch=True
     )
 
-if not next_match:
+    if not next_match:
 
     if final_rows and final_rows[0]["id"] == m["id"]:
         db(
