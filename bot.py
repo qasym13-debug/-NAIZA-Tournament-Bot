@@ -67,7 +67,7 @@ def init_db():
         winner TEXT,
         UNIQUE(tournament_id, round_no, position)
     )""")
-        db("""CREATE TABLE IF NOT EXISTS champions(
+    db("""CREATE TABLE IF NOT EXISTS champions(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         player TEXT NOT NULL UNIQUE,
         wins INTEGER NOT NULL DEFAULT 0
