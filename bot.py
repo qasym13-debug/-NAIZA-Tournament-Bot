@@ -374,8 +374,7 @@ async def result(update, context):
         s1, s2 = a, b
     else:
         s1, s2 = b, a
-
-        winner = m["p1"] if s1 > s2 else m["p2"]
+    winner = m["p1"] if s1 > s2 else m["p2"]
     loser = m["p2"] if s1 > s2 else m["p1"]
 
     winner_row = db(
