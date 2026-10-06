@@ -109,7 +109,7 @@ def bracket_text(tid):
             p1, p2 = m["p1"] or "—", m["p2"] or "—"
             if m["winner"]:
                 score = f"{m['s1']}:{m['s2']}" if m["s1"] is not None else "BYE"
-                out.append(f"#{m['id']}  {p1} {score} {p2}  ✅ {m['winner']}")
+                out.append(f"{p1} {score} {p2}  ✅ {m['winner']}")
             else:
                 out.append(f"#{m['id']}  {p1}  —  {p2}")
     return "\n".join(out)
