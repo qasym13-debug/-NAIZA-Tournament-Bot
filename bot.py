@@ -315,8 +315,9 @@ async def result(update, context):
         r"(@[\w]+)\s+(\d+)\s*-\s*(\d+)\s+(@[\w]+)",
         text
     )
-
+    
     if not match:
+        await update.message.reply_text("❌ Қате формат! Мысал: @player1 3-0 @player2")
         return
 
     p1_input = match.group(1)
