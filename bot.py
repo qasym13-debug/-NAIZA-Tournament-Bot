@@ -208,9 +208,26 @@ async def new(update, context):
     )
     return
 async def champions(update, context):
+    rows = db(
+        "SELECT player, wins FROM champions ORDER BY wins DESC, player",
+        fetch=True
+    )
+
+    if not rows:
+        await update.message.reply_text(
+            "🏆 <b>NAIZA CHAMPIONS</b>\n\n"
+            "Әзірге чемпиондар жоқ.",
+            parse_mode="HTML"
+        )
+        return
+
+    text = "🏆 <b>NAIZA CHAMPIONS</b>\n\n"
+
+    for player, wins in rows:
+        text += f"👑 {player} — <b>{wins}×</b>\n"
+
     await update.message.reply_text(
-        "🏆 <b>NAIZA CHAMPIONS</b>\n\n"
-        "Әзірге чемпиондар жоқ.",
+        text,
         parse_mode="HTML"
     )
 async def add(update, context):
