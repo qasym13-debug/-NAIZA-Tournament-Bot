@@ -181,7 +181,7 @@ async def my_id(update, context):
 async def new(update, context):
     if not await need_admin(update):
         return
-    db("UPDATE tournament SET status='finished' WHERE status='active'")
+    db("UPDATE tournament SET status='finished' WHERE status != 'finished'")
     if not context.args or context.args[0] not in {"4", "8", "16", "32"}:
         await update.message.reply_text("Қолдану: /new 16")
         return
