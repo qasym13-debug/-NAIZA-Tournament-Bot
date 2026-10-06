@@ -378,16 +378,16 @@ async def result(update, context):
     loser = m["p2"] if s1 > s2 else m["p1"]
 
     winner_row = db(
-        "SELECT elo FROM players WHERE tournament_id=? AND name=?",
-        (t["id"], winner),
-        fetch=True
-    )
+         "SELECT elo FROM players WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
+         (t["id"], winner),
+         fetch=True
+)
 
     loser_row = db(
-        "SELECT elo FROM players WHERE tournament_id=? AND name=?",
+        "SELECT elo FROM players WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
         (t["id"], loser),
         fetch=True
-    )
+)
 
     winner_elo = winner_row[0]["elo"] if winner_row else 1000
     loser_elo = loser_row[0]["elo"] if loser_row else 1000
