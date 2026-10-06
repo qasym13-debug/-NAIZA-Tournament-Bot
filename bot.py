@@ -73,7 +73,7 @@ def init_db():
         wins INTEGER NOT NULL DEFAULT 0
     )""")
 init_db()
-        db("""CREATE TABLE IF NOT EXISTS player_elo(
+    db("""CREATE TABLE IF NOT EXISTS player_elo(
         player_key TEXT PRIMARY KEY,
         player TEXT NOT NULL,
         elo INTEGER NOT NULL DEFAULT 1000
