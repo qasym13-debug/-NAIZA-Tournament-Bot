@@ -433,7 +433,7 @@ async def result(update, context):
         winner
     )
 
-    # Финал
+         # Финал
     next_match = db(
         """SELECT * FROM matches
            WHERE tournament_id=?
@@ -448,8 +448,6 @@ async def result(update, context):
     )
 
     if not next_match:
-
-    if final_rows and final_rows[0]["id"] == m["id"]:
         db(
             "UPDATE tournament SET status='finished' WHERE id=?",
             (t["id"],)
