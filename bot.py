@@ -247,7 +247,20 @@ async def draw(update, context):
         await update.message.reply_text("Қазір белсенді турнир жоқ.")
         return
     ps = player_names(t["id"])
-    if not ps:
+
+existing_matches = db(
+    "SELECT COUNT(*) AS count FROM matches WHERE tournament_id=?",
+    (t["id"],),
+    fetch=True
+)
+
+if existing_matches[0]["count"] > 0:
+    await update.message.reply_text(
+        "⚠️ Сетка уже создана. Повторный /draw запрещён."
+    )
+    return
+
+if len(ps) < 2:
         await update.message.reply_text("Ойыншылар әлі жоқ.")
         return
     text = "\n".join(f"{i+1}. {p}" for i,p in enumerate(ps))
