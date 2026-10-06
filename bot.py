@@ -445,7 +445,7 @@ async def result(update, context):
             (m["position"] + 1) // 2
         ),
         fetch=True
-)
+    )
 
 if not next_match:
 
