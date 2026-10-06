@@ -274,9 +274,6 @@ async def draw(update, context):
     db("DELETE FROM matches WHERE tournament_id=?", (t["id"],))
 
     create_bracket(t["id"], t["size"])
-
-    db("UPDATE tournament SET status='active' WHERE id=?", (t["id"],))
-
     await update.message.reply_text(
         "🎲 Жеребе дайын!\n\n" + bracket_text(t["id"]),
         parse_mode="HTML"
