@@ -409,10 +409,7 @@ async def result(update, context):
         "UPDATE players SET elo=? WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
         (new_loser_elo, t["id"], loser)
     )
-    await update.message.reply_text(
-        f"📊 ELO: {winner} +{elo_change} → {new_winner_elo}\n"
-        f"📉 ELO: {loser} -{elo_change} → {new_loser_elo}"
-    )
+    
 
     db(
         "UPDATE matches SET s1=?, s2=?, winner=? WHERE id=?",
@@ -451,7 +448,9 @@ async def result(update, context):
     await update.message.reply_text(
         f"✅ Нәтиже қабылданды!\n"
         f"⚽ {m['p1']} {s1}:{s2} {m['p2']}\n"
-        f"🏅 Жеңімпаз: {winner}\n\n"
+        f"🏅 Жеңімпаз: {winner}\n"
+        f"📊 ELO: {winner} +{elo_change} → {new_winner_elo}\n"
+        f"📉 ELO: {loser} -{elo_change} → {new_loser_elo}\n\n"
         + bracket_text(t["id"])
     )
 
