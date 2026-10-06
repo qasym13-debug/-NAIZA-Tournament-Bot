@@ -465,8 +465,14 @@ async def result(update, context):
             "UPDATE tournament SET status='finished' WHERE id=?",
             (t["id"],)
         )
-
-        await update.message.reply_text(
+        db(
+             """INSERT INTO champions(player, wins)
+                VALUES(?, 1)
+                ON CONFLICT(player)
+                DO UPDATE SET wins = wins + 1""",
+             (winner,)
+        )
+    await update.message.reply_text(
             f"🏆🏆🏆 NAIZA CHAMPION!\n\n"
             f"👑 {winner}\n\n"
             + bracket_text(t["id"])
