@@ -485,10 +485,10 @@ def main():
     app.add_handler(CommandHandler("cancel", cancel))
     app.add_handler(
     MessageHandler(
-        filters.Regex(r"^@\w+\s+\d+\s*-\s*\d+\s+@\w+$"),
+        filters.Regex(r"^@\S+\s+\d+\s*-\s*\d+\s+@\S+$"),
         result
     )
-)
+))
     print("NAIZA Tournament Bot is running on Render webhook...")
     external_url = os.environ.get("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
     if not external_url:
