@@ -49,11 +49,12 @@ def init_db():
         status TEXT NOT NULL DEFAULT 'registration'
     )""")
     db("""CREATE TABLE IF NOT EXISTS players(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tournament_id INTEGER NOT NULL,
-        name TEXT NOT NULL,
-        UNIQUE(tournament_id, name)
-    )""")
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tournament_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    elo INTEGER NOT NULL DEFAULT 1000,
+    UNIQUE(tournament_id, name)
+)""")
     db("""CREATE TABLE IF NOT EXISTS matches(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tournament_id INTEGER NOT NULL,
