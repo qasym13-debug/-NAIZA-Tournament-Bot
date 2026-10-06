@@ -363,44 +363,45 @@ async def result(update, context):
     else:
         s1, s2 = b, a
 
-    winner = m["p1"] if s1 > s2 else m["p2"]
+        winner = m["p1"] if s1 > s2 else m["p2"]
     loser = m["p2"] if s1 > s2 else m["p1"]
 
-winner_row = db(
-    "SELECT elo FROM players WHERE tournament_id=? AND name=?",
-    (t["id"], winner),
-    fetch=True
-)
+    winner_row = db(
+        "SELECT elo FROM players WHERE tournament_id=? AND name=?",
+        (t["id"], winner),
+        fetch=True
+    )
 
-loser_row = db(
-    "SELECT elo FROM players WHERE tournament_id=? AND name=?",
-    (t["id"], loser),
-    fetch=True
-)
+    loser_row = db(
+        "SELECT elo FROM players WHERE tournament_id=? AND name=?",
+        (t["id"], loser),
+        fetch=True
+    )
 
-winner_elo = winner_row[0]["elo"] if winner_row else 1000
-loser_elo = loser_row[0]["elo"] if loser_row else 1000
+    winner_elo = winner_row[0]["elo"] if winner_row else 1000
+    loser_elo = loser_row[0]["elo"] if loser_row else 1000
 
-score_diff = abs(s1 - s2)
+    score_diff = abs(s1 - s2)
 
-elo_change = calculate_elo(
-    winner_elo,
-    loser_elo,
-    score_diff
-)
+    elo_change = calculate_elo(
+        winner_elo,
+        loser_elo,
+        score_diff
+    )
 
-new_winner_elo = winner_elo + elo_change
-new_loser_elo = loser_elo - elo_change
+    new_winner_elo = winner_elo + elo_change
+    new_loser_elo = loser_elo - elo_change
 
-db(
-    "UPDATE players SET elo=? WHERE tournament_id=? AND name=?",
-    (new_winner_elo, t["id"], winner)
-)
+    db(
+        "UPDATE players SET elo=? WHERE tournament_id=? AND name=?",
+        (new_winner_elo, t["id"], winner)
+    )
 
-db(
-    "UPDATE players SET elo=? WHERE tournament_id=? AND name=?",
-    (new_loser_elo, t["id"], loser)
-)
+    db(
+        "UPDATE players SET elo=? WHERE tournament_id=? AND name=?",
+        (new_loser_elo, t["id"], loser)
+    )
+
     db(
         "UPDATE matches SET s1=?, s2=?, winner=? WHERE id=?",
         (s1, s2, winner, m["id"])
