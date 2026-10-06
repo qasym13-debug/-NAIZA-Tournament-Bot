@@ -436,15 +436,15 @@ async def result(update, context):
     # Финал
     next_match = db(
         """SELECT * FROM matches
-        WHERE tournament_id=?
-        AND round_no=?
-        AND position=?""",
-    (
-         t["id"],
-         m["round_no"] + 1,
-         (m["position"] + 1) // 2
-     ),
-     fetch=True
+           WHERE tournament_id=?
+           AND round_no=?
+           AND position=?""",
+        (
+            t["id"],
+            m["round_no"] + 1,
+            (m["position"] + 1) // 2
+        ),
+        fetch=True
 )
 
 if not next_match:
