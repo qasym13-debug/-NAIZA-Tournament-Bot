@@ -290,7 +290,18 @@ async def bracket(update, context):
         await update.message.reply_text("Қазір турнир жоқ.")
         return
     await update.message.reply_text(bracket_text(t["id"]), parse_mode="HTML")
+def calculate_elo(winner_elo, loser_elo, score_diff):
+    K = 32
 
+    expected_winner = 1 / (
+        1 + 10 ** ((loser_elo - winner_elo) / 400)
+    )
+
+    bonus = min(score_diff - 1, 3) * 2
+
+    change = round(K * (1 - expected_winner) + bonus)
+
+    return change
 async def result(update, context):
     if not await need_admin(update):
         return
