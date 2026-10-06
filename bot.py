@@ -193,7 +193,7 @@ async def my_id(update, context):
 async def new(update, context):
     if not await need_admin(update):
         return
-        t = active()
+    t = active()
     if t:
         await update.message.reply_text(
             "⚠️ Қазір аяқталмаған турнир бар."
