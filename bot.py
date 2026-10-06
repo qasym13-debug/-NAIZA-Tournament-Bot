@@ -172,6 +172,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "@user1 3-2 @user2 — матч нәтижесі\n"
         "/status — турнир статусы\n"
         "/cancel — турнирді жабу\n"
+        "/champions — NAIZA чемпиондары\n"
         "/id — Telegram ID\n\n"
         "Тек админ турнирді басқара алады.",
         parse_mode="HTML"
