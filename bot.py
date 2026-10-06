@@ -263,6 +263,12 @@ async def add(update, context):
         return
     try:
         db("INSERT INTO players(tournament_id,name) VALUES(?,?)", (t["id"], name))
+        db(
+            """INSERT INTO player_elo(player_key, player, elo)
+               VALUES(?, ?, 1000)
+               ON CONFLICT(player_key) DO NOTHING""",
+            (name.lower(), name)
+        )
     except sqlite3.IntegrityError:
         await update.effective_message.reply_text("Bul oiynshy buryn qosylgan.")
         return
