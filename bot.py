@@ -460,19 +460,21 @@ async def result(update, context):
         fetch=True
     )
 
-    if not next_match:
+        if not next_match:
         db(
             "UPDATE tournament SET status='finished' WHERE id=?",
             (t["id"],)
         )
+
         db(
-             """INSERT INTO champions(player, wins)
-                VALUES(?, 1)
-                ON CONFLICT(player)
-                DO UPDATE SET wins = wins + 1""",
-             (winner,)
+            """INSERT INTO champions(player, wins)
+               VALUES(?, 1)
+               ON CONFLICT(player)
+               DO UPDATE SET wins = wins + 1""",
+            (winner,)
         )
-    await update.message.reply_text(
+
+        await update.message.reply_text(
             f"🏆🏆🏆 NAIZA CHAMPION!\n\n"
             f"👑 {winner}\n\n"
             + bracket_text(t["id"])
