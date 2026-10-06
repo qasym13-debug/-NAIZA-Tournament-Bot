@@ -312,9 +312,9 @@ async def result(update, context):
 
     # Формат: @player1 3-0 @player2
     match = re.fullmatch(
-        r"(@[\w]+)\s+(\d+)\s*-\s*(\d+)\s+(@[\w]+)",
-        text
-    )
+    r"(@\S+)\s+(\d+)\s*-\s*(\d+)\s+(@\S+)",
+    text
+)
     
     if not match:
         await update.message.reply_text("❌ Қате формат! Мысал: @player1 3-0 @player2")
