@@ -506,6 +506,7 @@ def main():
     app.add_handler(CommandHandler("draw", draw))
     app.add_handler(CommandHandler("bracket", bracket))
     app.add_handler(CommandHandler("status", status))
+    app.add_handler(CommandHandler("champions", champions))
     app.add_handler(CommandHandler("cancel", cancel))
     app.add_handler(
     MessageHandler(
