@@ -418,15 +418,18 @@ async def result(update, context):
     winner = m["p1"] if s1 > s2 else m["p2"]
     loser = m["p2"] if s1 > s2 else m["p1"]
 
+    winner_key = winner.lower()
+    loser_key = loser.lower()
+
     winner_row = db(
-         "SELECT elo FROM players WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
-         (t["id"], winner),
-         fetch=True
+        "SELECT elo FROM player_elo WHERE player_key=?",
+        (winner_key,),
+        fetch=True
     )
 
     loser_row = db(
-        "SELECT elo FROM players WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
-        (t["id"], loser),
+        "SELECT elo FROM player_elo WHERE player_key=?",
+        (loser_key,),
         fetch=True
     )
 
@@ -445,13 +448,19 @@ async def result(update, context):
     new_loser_elo = loser_elo - elo_change
 
     db(
-        "UPDATE players SET elo=? WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
-         (new_winner_elo, t["id"], winner)
+        """INSERT INTO player_elo(player_key, player, elo)
+           VALUES(?, ?, ?)
+           ON CONFLICT(player_key)
+           DO UPDATE SET player=?, elo=?""",
+        (winner_key, winner, new_winner_elo, winner, new_winner_elo)
     )
 
     db(
-        "UPDATE players SET elo=? WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
-        (new_loser_elo, t["id"], loser)
+        """INSERT INTO player_elo(player_key, player, elo)
+           VALUES(?, ?, ?)
+           ON CONFLICT(player_key)
+           DO UPDATE SET player=?, elo=?""",
+        (loser_key, loser, new_loser_elo, loser, new_loser_elo)
     )
     
 
