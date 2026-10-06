@@ -202,7 +202,12 @@ async def new(update, context):
         parse_mode="HTML"
     )
     return
-
+async def champions(update, context):
+    await update.message.reply_text(
+        "🏆 <b>NAIZA CHAMPIONS</b>\n\n"
+        "Әзірге чемпиондар жоқ.",
+        parse_mode="HTML"
+    )
 async def add(update, context):
     #if not await need_admin(update): return
     t = active()
