@@ -73,7 +73,11 @@ def init_db():
         wins INTEGER NOT NULL DEFAULT 0
     )""")
 init_db()
-
+        db("""CREATE TABLE IF NOT EXISTS player_elo(
+        player_key TEXT PRIMARY KEY,
+        player TEXT NOT NULL,
+        elo INTEGER NOT NULL DEFAULT 1000
+    )""")
 def is_admin(update: Update) -> bool:
     return bool(update.effective_user and update.effective_user.id == ADMIN_ID)
 
