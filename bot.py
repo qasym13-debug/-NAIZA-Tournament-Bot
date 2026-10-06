@@ -488,7 +488,7 @@ def main():
         filters.Regex(r"^@\S+\s+\d+\s*-\s*\d+\s+@\S+$"),
         result
     )
-))
+)
     print("NAIZA Tournament Bot is running on Render webhook...")
     external_url = os.environ.get("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
     if not external_url:
