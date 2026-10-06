@@ -434,13 +434,20 @@ async def result(update, context):
     )
 
     # Финал
-    final_rows = db(
+    next_match = db(
         """SELECT * FROM matches
-           WHERE tournament_id=?
-           ORDER BY round_no DESC LIMIT 1""",
-        (t["id"],),
-        fetch=True
-    )
+        WHERE tournament_id=?
+        AND round_no=?
+        AND position=?""",
+    (
+         t["id"],
+         m["round_no"] + 1,
+         (m["position"] + 1) // 2
+     ),
+     fetch=True
+)
+
+if not next_match:
 
     if final_rows and final_rows[0]["id"] == m["id"]:
         db(
