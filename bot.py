@@ -87,10 +87,13 @@ def player_names(tid):
     return [r["name"] for r in db("SELECT name FROM players WHERE tournament_id=? ORDER BY id", (tid,), fetch=True)]
 
 def round_name(r, total):
-    names = {1:"1/16 ФИНАЛ",2:"1/8 ФИНАЛ",3:"1/4 ФИНАЛ",4:"1/2 ФИНАЛ",5:"ФИНАЛ"}
-    if total == 1:
+    if r == total:
         return "ФИНАЛ"
-    return names.get(r, f"{r}-РАУНД")
+
+    if r == 1:
+        return f"1/{2 ** (total - 1)} ФИНАЛ"
+
+    return f"1/{2 ** (total - r)} ФИНАЛ"
 
 def bracket_text(tid):
     t = db("SELECT * FROM tournament WHERE id=?", (tid,), fetch=True)[0]
