@@ -208,8 +208,8 @@ async def add(update, context):
         f"status={t['status'] if t else None}"
     )
     if not t:
-    await update.effective_message.reply_text("❌ Турнир табылмады.")
-    return
+        await update.effective_message.reply_text("❌ Турнир табылмады.")
+        return
 
     if t["status"] != "registration":
         await update.effective_message.reply_text(
