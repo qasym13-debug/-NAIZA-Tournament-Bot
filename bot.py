@@ -242,11 +242,14 @@ async def players(update, context):
     await update.effective_message.reply_text(text, parse_mode="HTML")
 async def draw(update, context):
     if not await need_admin(update): return
+
     t = active()
+
     if not t or t["status"] != "registration":
         await update.message.reply_text("⚠️ Жеребе жасауға дайын турнир жоқ.")
         return
-        ps = player_names(t["id"])
+
+    ps = player_names(t["id"])
 
     existing_matches = db(
         "SELECT COUNT(*) AS count FROM matches WHERE tournament_id=?",
@@ -260,16 +263,24 @@ async def draw(update, context):
         )
         return
 
-    if len(ps) > t["size"]:
+    if len(ps) < 2:
         await update.message.reply_text("❌ Кемінде 2 ойыншы керек.")
         return
+
     if len(ps) > t["size"]:
         await update.message.reply_text("❌ Ойыншы саны лимиттен асып кетті.")
         return
+
     db("DELETE FROM matches WHERE tournament_id=?", (t["id"],))
+
     create_bracket(t["id"], t["size"])
+
     db("UPDATE tournament SET status='active' WHERE id=?", (t["id"],))
-    await update.message.reply_text("🎲 Жеребе дайын!\n\n" + bracket_text(t["id"]), parse_mode="HTML")
+
+    await update.message.reply_text(
+        "🎲 Жеребе дайын!\n\n" + bracket_text(t["id"]),
+        parse_mode="HTML"
+    )
 async def bracket(update, context):
     t = active()
     if not t:
