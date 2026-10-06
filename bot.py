@@ -467,8 +467,6 @@ async def result(update, context):
             + bracket_text(t["id"])
         )
         return
-            f"🏆🏆🏆 NAIZA CHAMPION!\n\n"
-        f"👑 {winner}\n\n"
     await update.message.reply_text(
         f"✅ Нәтиже қабылданды!\n"
         f"⚽ {m['p1']} {s1}:{s2} {m['p2']}\n"
