@@ -409,7 +409,10 @@ async def result(update, context):
         "UPDATE players SET elo=? WHERE tournament_id=? AND LOWER(name)=LOWER(?)",
         (new_loser_elo, t["id"], loser)
     )
-    
+    await update.message.reply_text(
+        f"📊 ELO: {winner} +{elo_change} → {new_winner_elo}\n"
+        f"📉 ELO: {loser} -{elo_change} → {new_loser_elo}"
+    )
 
     db(
         "UPDATE matches SET s1=?, s2=?, winner=? WHERE id=?",
