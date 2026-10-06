@@ -460,7 +460,7 @@ async def result(update, context):
         fetch=True
     )
 
-        if not next_match:
+    if not next_match:
         db(
             "UPDATE tournament SET status='finished' WHERE id=?",
             (t["id"],)
