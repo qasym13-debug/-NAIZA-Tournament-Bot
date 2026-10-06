@@ -203,6 +203,10 @@ async def new(update, context):
 async def add(update, context):
     #if not await need_admin(update): return
     t = active()
+    await update.message.reply_text(
+        f"DEBUG: id={t['id'] if t else None}, "
+        f"status={t['status'] if t else None}"
+    )
     if not t or t["status"] != "registration":
         await update.effective_message.reply_text("Tirkeu zhabyq.")
         return
